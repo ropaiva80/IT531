@@ -1,0 +1,30 @@
+============================================================================
+
+import numpy as np
+import pandas as pd
+import pandas
+import dateutil
+
+data1 = pd.read_csv('Dataset_TrackOne_May2021v2.csv')
+data2 = data1.iloc[:,[5,8,14,15,21,24]]
+pandas.set_option('display.max_rows', data2.shape[0]+1)
+
+data2['PICK UP TIME'] = pd.to_datetime(data2['PICK UP TIME'], format= '%H:%M', errors = 'coerce')
+data2['DELIVERY TIME'] = pd.to_datetime(data2['DELIVERY TIME'], format= '%H:%M', errors = 'coerce')
+
+###### BEGIN main block for ETA calculation ######
+
+data2['ETA'] = (pd.to_datetime(data2['DELIVERY TIME'], format= '%H:%M')
+.sub(pd.to_datetime(data2['PICK UP TIME'], format= '%H:%M'))
+.dt.total_seconds ())
+
+or
+
+data2['DELIVERY TIME'] = pd.to_datetime(data2['DELIVERY TIME'], format= '%H:%M')
+data2['PICK UP TIME'] = pd.to_datetime(data2['PICK UP TIME'], format= '%H:%M')
+
+data2['ETA in sec'] = data2['DELIVERY TIME'].sub(data2['PICK UP TIME']).dt.total_seconds ()
+
+print (data2)
+
+data2[data2['SITE'] == 'RENO PCA'].groupby(['PICK UP LOCATION', 'DELIVERY NAME']).agg({'ETA in sec': ['mean', 'min', 'max']})
